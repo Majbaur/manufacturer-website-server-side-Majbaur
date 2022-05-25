@@ -20,7 +20,6 @@ async function run(){
         // const serviceCollection = client.db("computerPartsHouse").collection("service");
         
         const productCollection = client.db("computerPartsHouse").collection("product");
-        const delearCollection = client.db("computerPartsHouse").collection("delear");
         const addedItemCollection = client.db("computerPartsHouse").collection("addedItem");
         
         // app.get('/service',async(rep,res)=>{
@@ -156,6 +155,12 @@ async function run(){
             const result = await addedItemCollection.deleteOne(query);
             res.send(result);
         });
+        app.get('/addedItem' , async (req, res)=>{
+            const email=req.query.email
+            const query={email: email}
+            const addedItems=await addedItemCollection.find(query).toArray()
+            res.send(addedItems)
+        })
 
     }
 
