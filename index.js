@@ -42,7 +42,7 @@ async function run(){
         const productCollection = client.db("computerPartsHouse").collection("product");
         const addedItemCollection = client.db("computerPartsHouse").collection("addedItem");
         const userCollection = client.db("computerPartsHouse").collection("users");
-        const orderCollection = client.db('computerPartsHouse').collection('order');
+        const orderCollection = client.db('computerartsHouse').collection('order');
         
         // app.get('/service',async(rep,res)=>{
         //     const query={}
