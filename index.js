@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require('cors');
-// const jwt =require('jsonwebtoken')
+const jwt =require('jsonwebtoken')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const port=process.env.PORT || 5000
@@ -14,6 +14,26 @@ app.use(express.json())
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.s598z.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
+
+function verifyJWT(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).send({ message: 'unAuthorized access' });
+    }
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function(err, decoded) {
+      
+      if (err) {
+        return res.status(403).send({ message: 'Forbidden access' });
+        req.decoded = decoded;
+        next();
+        // console.log(decoded) // bar
+      }
+    });
+  }
+
+
 async function run(){
     try{
         await client.connect()
@@ -32,25 +52,32 @@ async function run(){
         // })
         
         // app.get('/order', verifyJWT, async (req, res) => {
-        app.get('/order', async (req, res) => {
-            const decodedEmail = req.decoded.email;
-            const email = req.query.email;
-            if (email === decodedEmail) {
-                const query = { email: email };
-                const cursor = orderCollection.find(query);
-                const orders = await cursor.toArray();
-                res.send(orders);
-            }
-            else{
-                res.status(403).send({message: 'forbidden access'})
-            }
-        })
+        // app.get('/myorder',verifyJWT, async (req, res) => {
+        //     const decodedEmail = req.decoded.email;
+        //     const email = req.query.email;
+        //     if (email === decodedEmail) {
+        //         const query = { email: email };
+        //         const cursor = orderCollection.find(query);
+        //         const orders = await cursor.toArray();
+        //         res.send(orders);
+        //     }
+        //     else{
+        //         res.status(403).send({message: 'forbidden access'})
+        //     }
+        // })
+
+        app.get('/order',async(req,res)=>{
+            const query={}
+            const cursor=orderCollection.find(query)
+            const order=await cursor.toArray()
+            res.send(order)
+        });
 
         app.post('/order', async (req, res) => {
             const order = req.body;
             const result = await orderCollection.insertOne(order);
             res.send(result);
-        })
+        });
 
         //user INformation // upsert
         app.put('/user/:email',async (req, res)=>{
@@ -63,7 +90,41 @@ async function run(){
             };
             const result = await userCollection.updateOne(filter, updateDoc, options);
             res.send(result);
-        })
+        });
+
+
+//add veryfyJWT, veryfyJWT, veryfyAdmin,
+app.put('/user/admin/:email', async (req, res) => {
+    const email = req.params.email;
+    const requester = req.decoded.email;
+    const requesterAccount = await userCollection.findOne({email: requester});
+
+    if(requesterAccount.role==='admin'){
+
+        const filter = { email: email };
+    const updateDoc = {
+      $set: { role: 'admin' },
+    };
+    const result = await userCollection.updateOne(filter, updateDoc);
+    res.send(result);
+    }
+
+
+    
+    
+  })
+
+
+
+
+  
+
+
+        //all user for mak admin
+        app.get('/user', async (req, res) => {
+            const users = await userCollection.find().toArray();
+            res.send(users);
+          })
 
 
         app.get('/items', async (req, res) => {
@@ -173,8 +234,6 @@ async function run(){
         
         //post ADD user Majba
         app.get('/addedItem' , async (req, res)=>{
-            const email=req.query.email
-            const query={email: email}
             const cursor=addedItemCollection.find(query)
             const addedItems=await cursor.toArray()
             res.send(addedItems)
@@ -191,12 +250,7 @@ async function run(){
             const result = await addedItemCollection.deleteOne(query);
             res.send(result);
         });
-        app.get('/addedItem' , async (req, res)=>{
-            const email=req.query.email
-            const query={email: email}
-            const addedItems=await addedItemCollection.find(query).toArray()
-            res.send(addedItems)
-        })
+        
 
     }
 
