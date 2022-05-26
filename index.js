@@ -218,12 +218,12 @@ app.put('/user/admin/:email', async (req, res) => {
 
         //make an admin verify page
     app.get('/admin/:email', async (req, res) => {
-        const email = req.params.email;
-        const user = await userCollection.findOne({ email: email });
-        const isAdmin = user.role === 'admin';
-        res.send({ admin: isAdmin });
-  
-      })
+      const email = req.params.email;
+      const user = await userCollection.findOne({ email: email });
+      const isAdmin = user.role === 'admin';
+      res.send({ admin: isAdmin });
+
+    })
 
 
 
