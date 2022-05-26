@@ -44,27 +44,27 @@ async function run(){
         const userCollection = client.db("computerPartsHouse").collection("users");
         const orderCollection = client.db('computerPartsHouse').collection('order');
         
-        // app.get('/service',async(rep,res)=>{
-        //     const query={}
-        //     const cursor=serviceCollection.find(query)
-        //     const services=await cursor.toArray()
-        //     res.send(services)
-        // })
+        app.get('/service',async(rep,res)=>{
+            const query={}
+            const cursor=serviceCollection.find(query)
+            const services=await cursor.toArray()
+            res.send(services)
+        })
         
-        // app.get('/order', verifyJWT, async (req, res) => {
-        // app.get('/myorder',verifyJWT, async (req, res) => {
-        //     const decodedEmail = req.decoded.email;
-        //     const email = req.query.email;
-        //     if (email === decodedEmail) {
-        //         const query = { email: email };
-        //         const cursor = orderCollection.find(query);
-        //         const orders = await cursor.toArray();
-        //         res.send(orders);
-        //     }
-        //     else{
-        //         res.status(403).send({message: 'forbidden access'})
-        //     }
-        // })
+        app.get('/order', verifyJWT, async (req, res) => {
+        app.get('/myorder',verifyJWT, async (req, res) => {
+            const decodedEmail = req.decoded.email;
+            const email = req.query.email;
+            if (email === decodedEmail) {
+                const query = { email: email };
+                const cursor = orderCollection.find(query);
+                const orders = await cursor.toArray();
+                res.send(orders);
+            }
+            else{
+                res.status(403).send({message: 'forbidden access'})
+            }
+        })
 
         app.get('/order',async(req,res)=>{
             const query={}
